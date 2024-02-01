@@ -191,7 +191,7 @@ def make_inpainting_model(model_name: str) -> str:
         base_sd = os.path.join(models_folder_path, "v1-5-pruned.safetensors")
         target_model = os.path.join(models_folder_path, model_name)
         output_model_path = os.path.join(models_folder_path, f"{os.path.splitext(model_name)[0]}-inpainting.safetensors")
-        create_inpaiting_model(inpaint, target_model, base_sd, output_model_path)
+        create_inpainting_model(inpaint, target_model, base_sd, output_model_path)
         return f"модель сохранена: {output_model_path}"
     except Exception as e:
         return str(e)

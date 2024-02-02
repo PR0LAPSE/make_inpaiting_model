@@ -185,18 +185,17 @@ def create_inpainting_model(model_a, model_b, model_c, custom_name):
     gc.collect()
 
 
-def make_inpainting_model(model_name: str) -> str:
+def make_inpainting_model(model_name: str) -> list:
     try:
         inpaint = os.path.join(models_folder_path, "sd-v1-5-inpainting.safetensors")
         base_sd = os.path.join(models_folder_path, "v1-5-pruned.safetensors")
         target_model = os.path.join(models_folder_path, model_name)
         output_model_path = os.path.join(models_folder_path, f"{os.path.splitext(model_name)[0]}-inpainting.safetensors")
         create_inpainting_model(inpaint, target_model, base_sd, output_model_path)
-        return f"модель сохранена: {output_model_path}"
+        return [f"модель сохранена: {output_model_path}", f"модель сохранена: {output_model_path}"]
     except Exception as e:
-        msg = "нельзя использовать в качестве базы inpainting или instruct-pix2pix модель" if "size of tensor" in str(
-            e) else str(e)
-        return msg
+        msg = "нельзя использовать в качестве базы inpainting или instruct-pix2pix модель" if "size of tensor" in str(e) else str(e)
+        return [msg, msg]
 
 
 class Script(scripts.Script):

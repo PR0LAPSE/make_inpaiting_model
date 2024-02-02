@@ -194,47 +194,13 @@ def make_inpainting_model(model_name: str) -> str:
         create_inpainting_model(inpaint, target_model, base_sd, output_model_path)
         return f"модель сохранена: {output_model_path}"
     except Exception as e:
-        return str(e)
+        msg = "нельзя использовать в качестве базы inpainting или instruct-pix2pix модель" if "size of tensor" in str(
+            e) else str(e)
+        return msg
 
-
-CSS = """
-<style>
-#sd1_models {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    align-content: center;
-    align-items: center;
-    justify-content: space-between;
-}
-
-#refresh_inpainting_button {
-    --s: 18px;
-    max-width: var(--s) !important;
-    width: var(--s) !important;
-    min-width: var(--s) !important;
-    max-height: var(--s) !important;
-    height: var(--s) !important;
-    min-height: var(--s) !important;
-    background: none!important;
-    border: none!important;
-    padding: 0!important;
-    margin: 0!important;
-    display: flex;
-    flex-wrap: wrap;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-}
-#sd_model_list span {
-    display: none !important;
-    width: 0px !important;
-    height: 0px !important;
-}
-</style>
-"""
 
 class Script(scripts.Script):
+
     def title(self):
         return "🎨️ создать inpaiting модель из базовой"
 
@@ -245,7 +211,9 @@ class Script(scripts.Script):
     def ui(self, is_img2img):
         if is_img2img:
             with gr.Accordion(label=self.title(), open=True):
+
                 sd1_file_paths = filter_sd1_files(models_folder_path)
+
                 with gr.Row(variant="compact", elem_id="sd1_models"):
                     sd_model_list = gr.Dropdown(choices=sd1_file_paths, value=sd1_file_paths[0], label="", elem_id="sd_model_list")
                     refresh_button = gr.Button("🔄", variant="secondary", elem_id="refresh_inpainting_button")
@@ -253,12 +221,12 @@ class Script(scripts.Script):
 
                 def upd_models():
                     updated_sd1_file_paths = filter_sd1_files(models_folder_path)
-                    return sd_model_list.update(choices=updated_sd1_file_paths, value=updated_sd1_file_paths[0], label="базовая модель:")
+                    return sd_model_list.update(choices=updated_sd1_file_paths, value=updated_sd1_file_paths[0])
+
+                output_result = gr.HTML(value="", elem_id="inp_out")
+                hidden_output = gr.Textbox(elem_id="hidden_inp_out")
 
                 refresh_button.click(upd_models, outputs=sd_model_list)
-                output_result = gr.HTML(value="", elem_id="inp_out")
-
-                create_inpainting_button.click(make_inpainting_model, inputs=sd_model_list, outputs=output_result)
-                css = gr.HTML(CSS)
-                return [sd_model_list, refresh_button, create_inpainting_button, output_result, css]
+                create_inpainting_button.click(make_inpainting_model, inputs=sd_model_list, outputs=[output_result, hidden_output])
+                return [sd_model_list, refresh_button, create_inpainting_button, output_result]
 
